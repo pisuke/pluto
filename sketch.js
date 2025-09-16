@@ -36,8 +36,20 @@ function setup() {
   pixelDensity(1);
   // -----------------------
   
+    // 1. Define constraints to *prefer* the back camera
+  let constraints = {
+    video: {
+      facingMode: {
+        ideal: "environment" // "ideal" means "preferred"
+      }
+    }
+  };
+
+  // 2. Pass the constraints object to createCapture
+  video = createCapture(constraints);
+  
   // Initialize webcam
-  video = createCapture(VIDEO);
+  // video = createCapture(VIDEO);
   video.size(width, height);
   video.hide(); // Hide the extra HTML5 video element
 
