@@ -29,7 +29,7 @@ function preload() {
 }
 
 function setup() {
-  let canvas = createCanvas(400, 300);
+  let canvas = createCanvas(300, 300);
   // canvas.parent('main'); // Attach canvas to the <main> element
   
   // Forces the pixel array to be 1:1 with the canvas size
