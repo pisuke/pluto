@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>p5.js QR Code Scanner</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        padding: 20px;
+        background-color: #f0f0f0;
+      }
+      h2 {
+        color: #333;
+      }
+      #status {
+        font-weight: bold;
+        font-size: 1.2em;
+        padding: 10px;
+        background-color: #fff;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+      }
+      #links-container {
+        margin-top: 20px;
+        padding: 15px;
+        background-color: #fff;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+      }
+      #links-container a {
+        display: block;
+        padding: 8px;
+        margin-bottom: 5px;
+        background-color: #007bff;
+        color: white;
+        text-decoration: none;
+        border-radius: 3px;
+      }
+      #links-container a:hover {
+        background-color: #0056b3;
+      }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.4/p5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.4/addons/p5.dom.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+  </head>
+  <body>
+    <h1>BDNS Asset QR Scanner</h1>
+    
+    <main></main>
+    
+    <p id="status">Please allow webcam access. Point a QR code at the camera.</p>
+    
+    <h2>Scanned Links</h2>
+    <div id="links-container">
+      <p>Scan a code to see related links here.</p>
+    </div>
+
+    <script src="sketch.js"></script>
+  </body>
+</html>
