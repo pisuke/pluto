@@ -6,7 +6,7 @@ const googleSheetURL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vR3ZhUCy
 
 // This is the header name in your sheet that holds the asset name
 // It IS case-sensitive and must match your CSV header exactly.
-const assetNameColumn = 'assetname'; // e.g., 'assetname'
+const assetNameColumn = 'name'; // e.g., 'assetname'
 // ---------------------
 
 
@@ -24,11 +24,17 @@ function preload() {
   // 'csv' = specify the format
   // 'header' = specify that the first row is a header
   sheetData = loadTable(googleSheetURL, 'csv', 'header');
+  // print(sheetData);
+  // print(sheetData.getColumn('assetname'));
 }
 
 function setup() {
   let canvas = createCanvas(400, 300);
-  canvas.parent('main'); // Attach canvas to the <main> element
+  // canvas.parent('main'); // Attach canvas to the <main> element
+  
+  // Forces the pixel array to be 1:1 with the canvas size
+  pixelDensity(1);
+  // -----------------------
   
   // Initialize webcam
   video = createCapture(VIDEO);
@@ -39,37 +45,50 @@ function setup() {
   statusElement = select('#status');
   linksContainer = select('#links-container');
 
-  // Check if data loaded successfully
+  // Check if data loaded
   if (sheetData && sheetData.getRowCount() > 0) {
     console.log('Google Sheet CSV data loaded successfully.');
     console.log('Columns found:', sheetData.columns);
   } else {
-    statusElement.html('Error: Could not load Google Sheet data. Check URL and "Publish to web" settings.');
+    statusElement.html('Error: Could not load Google Sheet data. Check URL and publishing permissions.');
     scanningEnabled = false;
   }
 }
 
 function draw() {
-  // Only scan if enabled
   if (scanningEnabled) {
-    // Draw the webcam feed to the canvas
-    image(video, 0, 0, width, height);
     
-    // Try to find a QR code
-    findQRCode();
+    // NEW, ROBUST CHECK:
+    // We check video.width (the video element's *intrinsic* width).
+    // This value is 0 until the webcam stream is fully initialized
+    // and has delivered its metadata.
+    if (video.width > 0) {
+      
+      // Only draw the video and try to scan if the webcam is ready
+      image(video, 0, 0, width, height);
+      findQRCode();
+
+    } else {
+      // Optional: Show a "loading" message while we wait
+      background(0);
+      fill(255);
+      textAlign(CENTER, CENTER);
+      text("Waiting for webcam...", width / 2, height / 2);
+    }
   }
 }
 
 function findQRCode() {
-  // Load the canvas pixels
+  // Load the pixels from the CANVAS (not the video element)
   loadPixels();
   
-  // Check if pixels are available
+  // Safety check: If the pixels array is empty,
+  // skip this frame. This prevents the "Malformed data" error.
   if (pixels.length === 0) {
     return;
   }
 
-  // Use jsQR to scan the pixel data from the canvas
+  // Pass the canvas's pixel data to jsQR
   const code = jsQR(pixels, width, height, {
     inversionAttempts: 'dontInvert',
   });
@@ -77,15 +96,19 @@ function findQRCode() {
   if (code) {
     // --- QR Code Found! ---
     scanningEnabled = false; // Stop scanning
-    let assetName = code.data;
-    statusElement.html(`✅ Code Found: ${assetName}`);
+    let assetDataString = code.data;
+    let assetData = JSON.parse(assetDataString);
+    print(assetData);
+    statusElement.html(`✅ Code Found: ${assetDataString}`);
+    
+    print(assetData.asset.name);
     
     // Now, process this asset name
-    processAssetName(assetName);
+    processAssetName(assetDataString);
   }
 }
 
-function processAssetName(assetName) {
+function processAssetName(assetDataString) {
   if (!sheetData) {
     linksContainer.html('<p>Error: No sheet data to process.</p>');
     return;
@@ -93,6 +116,8 @@ function processAssetName(assetName) {
 
   const rows = sheetData.getRows();
   let matchingRow = null;
+  let assetData = JSON.parse(assetDataString);
+  let assetName = assetData.asset.name;
 
   // Look for the matching asset name in the sheet data
   for (let row of rows) {
