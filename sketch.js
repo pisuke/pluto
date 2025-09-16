@@ -42,7 +42,8 @@ function setup() {
       facingMode: {
         ideal: "environment" // "ideal" means "preferred"
       }
-    }
+    },
+    audio: false 
   };
 
   // 2. Pass the constraints object to createCapture
